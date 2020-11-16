@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  nextdom-hue:
+    build:
+      context: .
+    image: nextdom-hue
+    container_name: nextdom-hue
+    restart: always
+    networks:
+    - nextdom
+    volumes:
+    - ./data:/root/.hue2mqtt
+    environment:
+    - MQTT_PROTOCOL=$MQTT_PROTOCOL
+    - MQTT_SERVER=$MQTT_SERVER
+    - MQTT_USER=$MQTT_USER
+    - MQTT_PASSWORD=$MQTT_PASSWORD
+    - POLLING_INTERVAL=$POLLING_INTERVAL
+
+networks:
+  nextdom:
+    driver: bridge
+    name: nextdom

@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  nextdom-v2:
+    build:
+      context: install
+    image: nextdom-v2
+    container_name: nextdom-v2
+    restart: always
+    ports:
+    - 1880:1880/tcp
+    - 1883:1883/tcp
+    networks: 
+    - nextdom
+    volumes:
+    - ./data/mqtt:/var/lib/mosquitto
+    - ./data/nodered:/data
+
+networks:
+  nextdom:
+    driver: bridge
+    name: nextdom
