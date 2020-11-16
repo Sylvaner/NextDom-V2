@@ -4,6 +4,7 @@
 import { Plugin } from './plugin';
 import { IoTObject } from '../models/BaseModel';
 import { Light } from '../models/light';
+import { MqttFormat } from '../models/MqttFormat';
 
 export class Hue implements Plugin {
   cache = {
@@ -36,7 +37,11 @@ export class Hue implements Plugin {
       const lightData = JSON.parse(message.toString());
       // Création de l'objet en cache
       if (!this.cache.lights.hasOwnProperty(lightName)) {
+        const topic = 'hue/status/lights/' + lightName;
         this.cache.lights[lightName] = new Light('hue-' + lightName, lightName);
+        this.cache.lights[lightName].reachableData = new MqttFormat(topic, 'hue_state.reachable', 'raw');
+        this.cache.lights[lightName].stateData = new MqttFormat(topic, 'hue_state.on', 'raw');
+        this.cache.lights[lightName].brightnessData = new MqttFormat(topic, 'hue_state.bri', 'raw');
       }
       // Mise à jour des informations
       this.cache.lights[lightName].state = lightData.hue_state.on;
