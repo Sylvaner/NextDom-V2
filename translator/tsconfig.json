@@ -1,11 +1,15 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"esModuleInterop": true,
-		"target": "es6",
-		"moduleResolution": "node",
-		"sourceMap": true,
-		"outDir": "dist"
-	},
-	"lib": ["es2015"]
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "strict": true,
+    "noUnusedLocals": true
+  },
+  "lib": ["es2015"]
 }

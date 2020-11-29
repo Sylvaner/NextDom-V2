@@ -3,12 +3,11 @@
  */
 import { Plugin } from './plugin';
 import { IoTObject } from '../models/BaseModel';
-import { Light } from '../models/light';
-import { MqttFormat } from '../models/MqttFormat';
+import { Light } from '../models/Light';
 
 export class Hue implements Plugin {
   cache = {
-    lights: {}
+    lights: new Map<string, Light>()
   }
 
   getCache() {
@@ -27,7 +26,7 @@ export class Hue implements Plugin {
     return 'hue/status/lights/#';
   }
 
-  messageHandler(topic: string, message: Buffer): IoTObject {
+  messageHandler(topic: string, message: Buffer): IoTObject | null {
     // Le nom de l'objet se trouve dans la topic
     const lightState: RegExp = /^hue\/status\/lights\/(.*)$/;
     const regExpResult = lightState.exec(topic);
@@ -35,19 +34,26 @@ export class Hue implements Plugin {
     if (regExpResult !== null) {
       const lightName = regExpResult[1];
       const lightData = JSON.parse(message.toString());
+      let light;
       // Création de l'objet en cache
       if (!this.cache.lights.hasOwnProperty(lightName)) {
-        const topic = 'hue/status/lights/' + lightName;
-        this.cache.lights[lightName] = new Light('hue-' + lightName, lightName);
-        this.cache.lights[lightName].reachableData = new MqttFormat(topic, 'hue_state.reachable', 'raw');
-        this.cache.lights[lightName].stateData = new MqttFormat(topic, 'hue_state.on', 'raw');
-        this.cache.lights[lightName].brightnessData = new MqttFormat(topic, 'hue_state.bri', 'raw');
+        const dataTopic = 'hue/status/lights/' + lightName;
+        light = new Light('hue-' + lightName, lightName);
+        light.reachableData = { topic: dataTopic, path: 'hue_state.reachable' };
+        light.stateData = { topic: dataTopic, path: 'hue_state.on' };
+        light.brightnessData = { topic: dataTopic, path: 'hue_state.bri' };
+      }
+      else {
+        light = this.cache.lights.get(lightName);
       }
       // Mise à jour des informations
-      this.cache.lights[lightName].state = lightData.hue_state.on;
-      this.cache.lights[lightName].brightness = lightData.hue_state.bri;
-      this.cache.lights[lightName].reachable = lightData.hue_state.reachable;
-      return this.cache.lights[lightName];
+      if (light !== undefined) {
+        light.state = lightData.hue_state.on;
+        light.brightness = lightData.hue_state.bri;
+        light.reachable = lightData.hue_state.reachable;
+        this.cache.lights.set(lightName, light);
+        return light;
+      }
     }
     return null;
   }

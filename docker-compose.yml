@@ -15,6 +15,34 @@ services:
     volumes:
     - ./data/mqtt:/var/lib/mosquitto
     - ./data/nodered:/data
+  nextdom-db:
+    image: postgres:latest
+    container_name: nextdom-db
+    hostname: nextdom-db
+    restart: always
+    networks:
+    - nextdom
+    ports:
+    #- 3306:3306
+    - 5432:5432
+    volumes:
+    - ./data/db:/var/lib/postgresql
+    - ./install/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+    - POSTGRES_PASSWORD=admin
+    - POSTGRES_DATABASE=nextdom
+    #- MYSQL_ROOT_PASSWORD=admin
+    #- MYSQL_DATABASE=nextdom
+    #- MYSQL_PASSWORD=nextdom
+    #- MYSQL_USER=nextdom
+  adminer:
+    image: adminer:latest
+    restart: always
+    networks:
+    - nextdom
+    ports: 
+    - 9080:8080
+
 
 networks:
   nextdom:
