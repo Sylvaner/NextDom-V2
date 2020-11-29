@@ -35,6 +35,16 @@ services:
     #- MYSQL_DATABASE=nextdom
     #- MYSQL_PASSWORD=nextdom
     #- MYSQL_USER=nextdom
+  nextdom-api:
+    build:
+      context: rest
+    image: nextdom-api
+    container_name: nextdom-api
+    restart: always
+    ports:
+    - 3000:3000
+    networks:
+    - nextdom
   adminer:
     image: adminer:latest
     restart: always
