@@ -39,9 +39,9 @@ export class Hue implements Plugin {
       if (!this.cache.lights.hasOwnProperty(lightName)) {
         const dataTopic = 'hue/status/lights/' + lightName;
         light = new Light('hue-' + lightName, lightName);
-        light.reachableData = { topic: dataTopic, path: 'hue_state.reachable' };
-        light.stateData = { topic: dataTopic, path: 'hue_state.on' };
-        light.brightnessData = { topic: dataTopic, path: 'hue_state.bri' };
+        light.addCapabilities('reachable', { get: { topic: dataTopic, path: 'hue_state.reachable' } });
+        light.addCapabilities('state', { get: { topic: dataTopic, path: 'hue_state.on' } });
+        light.addCapabilities('brightness', { get: { topic: dataTopic, path: 'hue_state.bri' } });
       }
       else {
         light = this.cache.lights.get(lightName);

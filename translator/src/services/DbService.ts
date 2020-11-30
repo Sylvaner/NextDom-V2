@@ -27,7 +27,11 @@ export class DbService {
   public save(objectToSave: IoTObject): void {
     if (objectToSave instanceof Light) {
       // TODO: JSON.parse(JSON.string), il y a mieux à faire
-      this.client?.query("INSERT INTO light (id, data) VALUES ($1, $2) ON CONFLICT(id) DO UPDATE SET data=$2", [objectToSave.id, JSON.parse(JSON.stringify(objectToSave))], [DataType.Varchar, DataType.Json]);
+      const { id, capabilities, ...dataToSave } = objectToSave;
+      this.client?.query(
+        "INSERT INTO light (id, data, capabilities) VALUES ($1, $2, $3) ON CONFLICT(id) DO UPDATE SET data=$2",
+        [objectToSave.id, JSON.parse(JSON.stringify(dataToSave)), objectToSave.capabilities],
+        [DataType.Varchar, DataType.Json, DataType.Json]);
       console.log(`Save ${objectToSave.id}`);
     }
   }
