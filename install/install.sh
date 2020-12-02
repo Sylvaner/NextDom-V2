@@ -5,8 +5,8 @@ apt-get install -y curl
 #############
 # Mosquitto #
 #############
-MOSQUITTO_USER="nextdom"
-MOSQUITTO_PASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
+#MOSQUITTO_USER="nextdom"
+#MOSQUITTO_PASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
 MOSQUITTO_PASSWORD_FILE="/etc/mosquitto/mosquitto.passwd"
 apt-get install -y mosquitto mosquitto-clients
 echo "user nextdom

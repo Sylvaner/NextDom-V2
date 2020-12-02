@@ -15,6 +15,11 @@ services:
     volumes:
     - ./data/mqtt:/var/lib/mosquitto
     - ./data/nodered:/data
+    environment:
+    - MOSQUITTO_USER=${MOSQUITTO_USER}
+    - MOSQUITTO_PASSWORD=${MOSQUITTO_PASSWORD}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
   nextdom-db:
     image: postgres:latest
     container_name: nextdom-db
@@ -23,35 +28,43 @@ services:
     networks:
     - nextdom
     ports:
-    #- 3306:3306
     - 5432:5432
     volumes:
     - ./data/db:/var/lib/postgresql
     - ./install/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-    - POSTGRES_PASSWORD=admin
-    - POSTGRES_DATABASE=nextdom
-    #- MYSQL_ROOT_PASSWORD=admin
-    #- MYSQL_DATABASE=nextdom
-    #- MYSQL_PASSWORD=nextdom
-    #- MYSQL_USER=nextdom
-  nextdom-api:
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+  nextdom-logic:
     build:
-      context: rest
-    image: nextdom-api
-    container_name: nextdom-api
-    restart: always
-    ports:
-    - 3000:3000
-    networks:
-    - nextdom
-  adminer:
-    image: adminer:latest
+      context: logic
+    image: nextdom-logic
+    container_name: nextdom-logic
     restart: always
     networks:
     - nextdom
-    ports: 
-    - 9080:8080
+    environment:
+    - MOSQUITTO_USER=${MOSQUITTO_USER}
+    - MOSQUITTO_PASSWORD=${MOSQUITTO_PASSWORD}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+#  nextdom-api:
+#    build:
+#      context: rest
+#    image: nextdom-api
+#    container_name: nextdom-api
+#    restart: always
+#    ports:
+#    - 3000:3000
+#    networks:
+#    - nextdom
+#  adminer:
+#    image: adminer:latest
+#    restart: always
+#    networks:
+#    - nextdom
+#    ports: 
+#    - 9080:8080
 
 
 networks:

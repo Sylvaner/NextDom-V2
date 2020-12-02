@@ -27,6 +27,7 @@ export class DbService {
   public save(objectToSave: IoTObject): void {
     if (objectToSave instanceof Light) {
       // TODO: JSON.parse(JSON.string), il y a mieux à faire
+      console.log(objectToSave);
       const { id, capabilities, ...dataToSave } = objectToSave;
       this.client?.query(
         "INSERT INTO light (id, data, capabilities) VALUES ($1, $2, $3) ON CONFLICT(id) DO UPDATE SET data=$2",

@@ -6,12 +6,12 @@ import { MqttService } from './services/MqttService';
 
 const mqttConfig: MqttConfig = {
   login: 'nextdom',
-  password: 'KthmKtQkflBrux6vEI2HOumbozpdDb',
-  server: '127.0.0.1'
+  password: 'mosquittopassword',
+  server: 'nextdom-v2'
 };
 
 const dbCredentials = {
-  host: '127.0.0.1',
+  host: 'nextdom-db',
   database: 'nextdom',
   user: 'postgres',
   password: 'admin',
