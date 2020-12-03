@@ -21,21 +21,6 @@ services:
     - MONGODB_USER=${MONGODB_USER}
     - MONGODB_PASSWORD=${MONGODB_PASSWORD}
     - MONGODB_DATABASE=${MONGODB_DATABASE}
-#  nextdom-db:
-#    image: postgres:latest
-#    container_name: nextdom-db
-#    hostname: nextdom-db
-#    restart: always
-#    networks:
-#    - nextdom
-#    ports:
-#    - 5432:5432
-#    volumes:
-#    - ./data/db:/var/lib/postgresql
-#    - ./install/init.sql:/docker-entrypoint-initdb.d/init.sql
-#    environment:
-#    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-#    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
   nextdom-db:
     build:
       context: db
@@ -54,20 +39,20 @@ services:
     environment:
     - MONGODB_USER=${MONGODB_USER}
     - MONGODB_PASSWORD=${MONGODB_PASSWORD}
-#  nextdom-logic:
-#    build:
-#      context: logic
-#    image: nextdom-logic
-#    container_name: nextdom-logic
-#    restart: always
-#    networks:
-#    - nextdom
-#    environment:
-#    - MOSQUITTO_USER=${MOSQUITTO_USER}
-#    - MOSQUITTO_PASSWORD=${MOSQUITTO_PASSWORD}
-#    - MONGODB_USER=${MONGODB_USER}
-#    - MONGODB_PASSWORD=${MONGODB_PASSWORD}
-#    - MONGODB_DATABASE=${MONGODB_DATABASE}
+  nextdom-logic:
+    build:
+      context: logic
+    image: nextdom-logic
+    container_name: nextdom-logic
+    restart: always
+    networks:
+    - nextdom
+    environment:
+    - MOSQUITTO_USER=${MOSQUITTO_USER}
+    - MOSQUITTO_PASSWORD=${MOSQUITTO_PASSWORD}
+    - MONGODB_USER=${MONGODB_USER}
+    - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+    - MONGODB_DATABASE=${MONGODB_DATABASE}
 #  nextdom-api:
 #    build:
 #      context: rest

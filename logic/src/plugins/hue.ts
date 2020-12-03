@@ -2,8 +2,9 @@
  * Plugin pour la gestion des objets Philips Hue
  */
 import { Plugin } from './plugin';
-import { IoTObject } from '../models/BaseModel';
 import { Light } from '../models/Light';
+import { StoreService } from '../services/StoreService';
+import { StateService } from '../services/StateService';
 
 export class Hue implements Plugin {
   cache = {
@@ -26,7 +27,7 @@ export class Hue implements Plugin {
     return 'hue/status/lights/#';
   }
 
-  messageHandler(topic: string, message: Buffer): IoTObject | null {
+  async messageHandler(topic: string, message: Buffer) {
     // Le nom de l'objet se trouve dans la topic
     const lightState: RegExp = /^hue\/status\/lights\/(.*)$/;
     const regExpResult = lightState.exec(topic);
@@ -34,27 +35,35 @@ export class Hue implements Plugin {
     if (regExpResult !== null) {
       const lightName = regExpResult[1];
       const lightData = JSON.parse(message.toString());
-      let light;
+      let light: Light;
+      const lightId = 'hue-' + lightName;
       // Création de l'objet en cache
-      if (!this.cache.lights.hasOwnProperty(lightName)) {
-        const dataTopic = 'hue/status/lights/' + lightName;
-        light = new Light('hue-' + lightName, lightName);
-        light.addCapabilities('reachable', { get: { topic: dataTopic, path: 'hue_state.reachable' } });
-        light.addCapabilities('state', { get: { topic: dataTopic, path: 'hue_state.on' } });
-        light.addCapabilities('brightness', { get: { topic: dataTopic, path: 'hue_state.bri' } });
+      if (!this.cache.lights.has(lightId)) {
+        light = new Light(lightId, lightName);
+        const objectFromDb = await StoreService.getInstance().getObject('light', lightId);
+        if (objectFromDb !== null) {
+          light.data = objectFromDb;
+        }
+        else {
+          const dataTopic = 'hue/status/lights/' + lightName;
+          light.addCapabilities('reachable', { get: { topic: dataTopic, path: 'hue_state.reachable' } });
+          light.addCapabilities('state', { get: { topic: dataTopic, path: 'hue_state.on' } });
+          light.addCapabilities('brightness', { get: { topic: dataTopic, path: 'hue_state.bri' } });
+          light.data = await StoreService.getInstance().save(light.type, light.data);
+        }
       }
       else {
-        light = this.cache.lights.get(lightName);
+        // Récupération de l'objet depuis le cache
+        light = this.cache.lights.get(lightId) as Light;
       }
       // Mise à jour des informations
       if (light !== undefined) {
-        light.state = lightData.hue_state.on;
-        light.brightness = lightData.hue_state.bri;
-        light.reachable = lightData.hue_state.reachable;
-        this.cache.lights.set(lightName, light);
-        return light;
+        light.state.state = lightData.hue_state.on;
+        light.state.brightness = lightData.hue_state.bri;
+        light.state.reachable = lightData.hue_state.reachable;
+        light.state = await StateService.getInstance().save(lightId, light.state);
+        this.cache.lights.set(lightId, light);
       }
     }
-    return null;
   }
 }

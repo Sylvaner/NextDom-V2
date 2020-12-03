@@ -1,39 +1,34 @@
-import { Client, DataType } from 'ts-postgres';
-import { IoTObject } from '../models/BaseModel';
-import { Light } from '../models/Light';
+import { MongoClient, Db, Collection } from 'mongodb';
+//import { IoTObject } from '../models/BaseModel';
+//import { Light } from '../models/Light';
+
+interface CollectionIndex {
+  [key: string]: Collection
+}
 
 export class DbService {
-  private client?: Client;
-  private static instance?: DbService;
+  private client?: MongoClient;
+  protected database?: Db;
+  protected collections: CollectionIndex = {};
 
-  public static getInstance(): DbService {
-    if (DbService.instance === undefined) {
-      DbService.instance = new DbService();
-    }
-    return DbService.instance;
-  }
-
-  public connect(credentials: object) {
-    this.client = new Client(credentials);
-    this.client.on('connect', () => {
-      console.log('DB: Connected');
-    })
-    this.client.on('error', (err) => {
-      console.log('DB: Error ' + err.message);
+  public connect(credentials: any): Promise<void> {
+    return new Promise(async (resolve) => {
+      const uri = `mongodb://${credentials.user}:${credentials.password}@${credentials.host}/${credentials.database}?w=majority`;
+      this.client = new MongoClient(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+      try {
+        await this.client.connect();
+        this.database = this.client.db(credentials.database);
+        const collections = await this.database.collections();
+        collections.forEach((collection) => {
+          this.collections[collection.collectionName] = collection;
+        });
+        resolve();
+      } catch (err) {
+        console.log(err);
+      }
     });
-    this.client.connect();
-  }
-
-  public save(objectToSave: IoTObject): void {
-    if (objectToSave instanceof Light) {
-      // TODO: JSON.parse(JSON.string), il y a mieux à faire
-      console.log(objectToSave);
-      const { id, capabilities, ...dataToSave } = objectToSave;
-      this.client?.query(
-        "INSERT INTO light (id, data, capabilities) VALUES ($1, $2, $3) ON CONFLICT(id) DO UPDATE SET data=$2",
-        [objectToSave.id, JSON.parse(JSON.stringify(dataToSave)), objectToSave.capabilities],
-        [DataType.Varchar, DataType.Json, DataType.Json]);
-      console.log(`Save ${objectToSave.id}`);
-    }
   }
 }

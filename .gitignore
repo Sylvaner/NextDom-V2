@@ -1,3 +1,4 @@
 /data/
-apilogic/dist
-apilogic/node_modules
+logic/dist
+logic/node_modules
+
