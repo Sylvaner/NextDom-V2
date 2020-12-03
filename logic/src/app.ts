@@ -1,29 +1,50 @@
-import { Hue } from './plugins/hue';
 import { Plugin } from './plugins/plugin';
-import { DbService } from './services/DbService';
+import { StoreDb } from './services/StoreDb';
+//import { StateDb } from './services/StateDb';
 import { MqttConfig } from './interfaces/MqttConfig';
 import { MqttService } from './services/MqttService';
 
 const mqttConfig: MqttConfig = {
   login: 'nextdom',
   password: 'mosquittopassword',
-  server: 'nextdom-v2'
+  server: 'localhost'
 };
 
-const dbCredentials = {
-  host: 'nextdom-db',
+const storeCredentials = {
+  host: 'localhost',
   database: 'nextdom',
-  user: 'postgres',
+  username: 'nextdom',
   password: 'admin',
-  port: 5432
 }
+/*
+const stateCredentials = {
+  host: 'localhost',
+  database: 'nextdomstate',
+  username: 'nextdom',
+  password: 'admin',
+}
+*/
+console.log('A');
+const storeDb = StoreDb.getInstance();
+storeDb.connect(storeCredentials).then(() => {
+  storeDb.registerModels();
+  console.log(StoreDb.lightModel);
+  start();
+})
+/*
+const stateDb = StateDb.getInstance();
+stateDb.connect(stateCredentials);
+*/
+console.log('B');
+
+import { Hue } from './plugins/hue';
+
+console.log('c');
 
 const enabledPlugins = ['Hue'];
-
 const availablePlugins = new Map<string, any>();
 availablePlugins.set('Hue', Hue);
-const dbService = DbService.getInstance();
-dbService.connect(dbCredentials);
+
 const mqttConnector = new MqttService(mqttConfig);
 // Lien vers les parsers de messages
 const messageParsers = new Map<string, Plugin>();
@@ -45,11 +66,11 @@ function mqttMessageParser(topic: string, message: Buffer): void {
   // TODO: Trouver une méthode qui évite un parcours à chaque fois
   messageParsers.forEach((plugin, topicPrefix) => {
     if (topic.indexOf(topicPrefix) !== -1) {
-      const result = plugin.messageHandler(topic, message);
+      plugin.messageHandler(topic, message);
       // Test si le message a été traité
-      if (result !== null) {
-        dbService.save(result);
-      }
+      //     if (result !== null) {
+      //dbService.save(result);
+      //   }
     }
   });
 }
@@ -67,7 +88,9 @@ function initPlugins(): Map<string, Plugin> {
   return plugins;
 }
 
-const translators = initPlugins();
-mqttConnector.connect(() => {
-  mqttConnected(translators);
-});
+function start() {
+  const translators = initPlugins();
+  mqttConnector.connect(() => {
+    mqttConnected(translators);
+  });
+}
