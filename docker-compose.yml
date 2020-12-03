@@ -18,8 +18,9 @@ services:
     environment:
     - MOSQUITTO_USER=${MOSQUITTO_USER}
     - MOSQUITTO_PASSWORD=${MOSQUITTO_PASSWORD}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+    - MONGODB_USER=${MONGODB_USER}
+    - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+    - MONGODB_DATABASE=${MONGODB_DATABASE}
 #  nextdom-db:
 #    image: postgres:latest
 #    container_name: nextdom-db
@@ -53,19 +54,20 @@ services:
     environment:
     - MONGODB_USER=${MONGODB_USER}
     - MONGODB_PASSWORD=${MONGODB_PASSWORD}
-  nextdom-logic:
-    build:
-      context: logic
-    image: nextdom-logic
-    container_name: nextdom-logic
-    restart: always
-    networks:
-    - nextdom
-    environment:
-    - MOSQUITTO_USER=${MOSQUITTO_USER}
-    - MOSQUITTO_PASSWORD=${MOSQUITTO_PASSWORD}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+#  nextdom-logic:
+#    build:
+#      context: logic
+#    image: nextdom-logic
+#    container_name: nextdom-logic
+#    restart: always
+#    networks:
+#    - nextdom
+#    environment:
+#    - MOSQUITTO_USER=${MOSQUITTO_USER}
+#    - MOSQUITTO_PASSWORD=${MOSQUITTO_PASSWORD}
+#    - MONGODB_USER=${MONGODB_USER}
+#    - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+#    - MONGODB_DATABASE=${MONGODB_DATABASE}
 #  nextdom-api:
 #    build:
 #      context: rest
