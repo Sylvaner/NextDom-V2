@@ -15,9 +15,8 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
-    "@types/mysql": "^2.15.15",
-    "mqtt": "^4.2.5",
-    "mysql": "^2.18.1",
-    "ts-postgres": "^1.1.3"
+    "@types/mongodb": "^3.6.0",
+    "mongodb": "^3.6.3",
+    "mqtt": "^4.2.5"
   }
 }
